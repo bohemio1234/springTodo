@@ -29,5 +29,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+#MacOS Specific
+.DS_Store
+
 ### VS Code ###
 .vscode/

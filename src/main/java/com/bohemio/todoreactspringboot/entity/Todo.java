@@ -1,11 +1,20 @@
 package com.bohemio.todoreactspringboot.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
 public class Todo {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String username;
     private String description;
     private LocalDate targetDate;
@@ -14,7 +23,7 @@ public class Todo {
     public Todo() {
     }
 
-    public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+    public Todo(Long id, String username, String description, LocalDate targetDate, boolean done) {
         this.id = id;
         this.username = username;
         this.description = description;
@@ -22,11 +31,11 @@ public class Todo {
         this.done = done;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
