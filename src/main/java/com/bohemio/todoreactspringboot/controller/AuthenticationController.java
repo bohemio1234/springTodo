@@ -2,8 +2,9 @@ package com.bohemio.todoreactspringboot.controller;
 
 import com.bohemio.todoreactspringboot.dto.JwtResponse;
 import com.bohemio.todoreactspringboot.dto.LoginRequest;
-import com.bohemio.todoreactspringboot.security.jwt.JwtTokenProvider;
+import com.bohemio.todoreactspringboot.dto.UserSignUpRequest;
 import com.bohemio.todoreactspringboot.service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +33,16 @@ public class AuthenticationController {
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e){
             return ResponseEntity.status(401).body("Authentication Failed: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody UserSignUpRequest userSignUpRequest) {
+        try{
+            authService.signUp(userSignUpRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

@@ -2,26 +2,37 @@ package com.bohemio.todoreactspringboot.service;
 
 import com.bohemio.todoreactspringboot.dto.JwtResponse;
 import com.bohemio.todoreactspringboot.dto.LoginRequest;
+import com.bohemio.todoreactspringboot.dto.UserSignUpRequest;
+import com.bohemio.todoreactspringboot.entity.User;
+import com.bohemio.todoreactspringboot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+@Service
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtEncoder jwtEncoder) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtEncoder jwtEncoder, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtEncoder = jwtEncoder;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Value("${jwt.expiration.ms}")
@@ -59,6 +70,24 @@ public class AuthServiceImpl implements AuthService {
         String token = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
         return new JwtResponse(token);
+    }
+
+    @Override
+    @Transactional
+    public void signUp(UserSignUpRequest signUpRequest) {
+        if (userRepository.existsByUsername(signUpRequest.username())){
+            throw new IllegalArgumentException("오류: 사용자 이름" + signUpRequest.username() + "'은(는) 이미 사용 중입니다.");
+        }
+        if (userRepository.existsByEmail(signUpRequest.email())){
+            throw new IllegalArgumentException("오류: 이메일 '" + signUpRequest.email() + "'은(는) 이미 사용 중입니다.");
+        }
+        User user = new User();
+        user.setUsername(signUpRequest.username());
+        user.setPassword(passwordEncoder.encode(signUpRequest.password()));
+        user.setEmail(signUpRequest.email());
+        user.setRole("ROLE_USER");
+        userRepository.save(user);
+
     }
 
 }
