@@ -176,7 +176,7 @@ public class SecurityConfig {
                         .requestMatchers( HttpMethod.GET, "/users/{username}/todos", "/users/{username}/todos/{id}").hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
                         .requestMatchers( HttpMethod.POST, "/users/{username}/todos").hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/{username}/todos/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/{username}/todos/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/{username}/todos/{id}").hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
 
 
                         .anyRequest().authenticated()

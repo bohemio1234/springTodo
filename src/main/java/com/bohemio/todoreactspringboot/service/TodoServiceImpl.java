@@ -2,8 +2,11 @@ package com.bohemio.todoreactspringboot.service;
 
 import com.bohemio.todoreactspringboot.entity.Todo;
 import com.bohemio.todoreactspringboot.repository.TodoRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,9 +40,20 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public boolean deleteById(Long id) {
-        if(todoRepository.existsById(id)){
-            todoRepository.deleteById(id);
-            return true;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+        Optional<Todo> todoOptional = todoRepository.findById(id);
+        if(todoOptional.isPresent()) {
+            Todo todoToDelete = todoOptional.get();
+            if(isAdmin || todoToDelete.getUsername().equalsIgnoreCase(currentUsername)){
+                todoRepository.deleteById(id);
+                return true;
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
         }
         return false;
     }
