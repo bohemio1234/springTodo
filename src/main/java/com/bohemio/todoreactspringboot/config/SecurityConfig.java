@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,6 +43,7 @@ import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${jwt.keystore.location}")
@@ -170,6 +173,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy( SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // "/authenticate" 경로는 인증 없이 모두 허용
+                        .requestMatchers( HttpMethod.GET, "/users/{username}/todos", "/users/{username}/todos/{id}").hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
+                        .requestMatchers( HttpMethod.POST, "/users/{username}/todos").hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/{username}/todos/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/{username}/todos/{id}").hasAuthority("ROLE_ADMIN")
+
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

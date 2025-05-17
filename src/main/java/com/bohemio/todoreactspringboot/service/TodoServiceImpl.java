@@ -2,6 +2,8 @@ package com.bohemio.todoreactspringboot.service;
 
 import com.bohemio.todoreactspringboot.entity.Todo;
 import com.bohemio.todoreactspringboot.repository.TodoRepository;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,6 +30,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @PreAuthorize("#username == authentication.name or hasRole('ADMIN')")
     public List<Todo> findByUsername(String username) {
         return todoRepository.findByUsername(username);
     }
