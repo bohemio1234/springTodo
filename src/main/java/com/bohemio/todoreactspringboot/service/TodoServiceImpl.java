@@ -45,6 +45,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @PostAuthorize("hasRole('ADMIN') or (returnObject.isPresent() and returnObject.get().username == authentication.name)")
     public Optional<Todo> findById(Long id) {
         return todoRepository.findById(id);
     }
