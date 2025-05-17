@@ -51,6 +51,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @PreAuthorize("#todo.username == authentication.name or hasRole('ADMIN')")
     public Todo save(Todo todo) {
         // JpaRepository의 save() 메소드는 엔티티에 ID가 없거나 존재하지 않으면 INSERT,
         // ID가 있고 해당 ID의 엔티티가 존재하면 UPDATE를 수행합니다.
