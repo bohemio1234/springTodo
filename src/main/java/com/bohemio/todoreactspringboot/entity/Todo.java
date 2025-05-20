@@ -1,15 +1,16 @@
 package com.bohemio.todoreactspringboot.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+@SQLDelete(sql = "UPDATE todo SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class Todo {
 
     @Id
@@ -20,15 +21,19 @@ public class Todo {
     private LocalDate targetDate;
     private boolean done;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
+
     public Todo() {
     }
 
-    public Todo(Long id, String username, String description, LocalDate targetDate, boolean done) {
+    public Todo(Long id, String username, String description, LocalDate targetDate, boolean done, boolean deleted) {
         this.id = id;
         this.username = username;
         this.description = description;
         this.targetDate = targetDate;
         this.done = done;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -69,6 +74,14 @@ public class Todo {
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override
