@@ -2,6 +2,7 @@ package com.bohemio.todoreactspringboot.controller;
 
 import com.bohemio.todoreactspringboot.entity.Todo;
 import com.bohemio.todoreactspringboot.service.TodoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,13 +32,13 @@ public class TodoController {
             @PathVariable String username,
             @PathVariable Long id) {
 
-        boolean deleted = todoService.deleteById(id); // 서비스 계층에 삭제 요청
+        boolean deleted = todoService.deleteById(id);
 
 
         if(deleted){
-            return ResponseEntity.noContent().build(); // 204 No Content (삭제 성공)
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build();// 404 Not Found (해당 ID 없음)
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -49,14 +50,14 @@ public class TodoController {
         Optional<Todo> todoOptional = todoService.findById(id);
 
         if (todoOptional.isPresent()) {
-            return ResponseEntity.ok(todoOptional.get()); // 200 OK 와 함께
+            return ResponseEntity.ok(todoOptional.get());
         } else {
-            return ResponseEntity.notFound().build();     // 404 Not Found 반환
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("users/{username}/todos")
-    public ResponseEntity<Todo> createTodo(@PathVariable String username, @RequestBody Todo todo) {
+    public ResponseEntity<Todo> createTodo(@PathVariable String username, @Valid @RequestBody Todo todo) {
         todo.setUsername(username);
         Todo savedTodo = todoService.save(todo);
 
@@ -73,7 +74,7 @@ public class TodoController {
     public ResponseEntity<Todo> updateTodo(
             @PathVariable String username,
             @PathVariable long id,
-            @RequestBody Todo todo) { // 요청 본문의 JSON 데이터를 Todo 객체로 변환
+            @Valid @RequestBody Todo todo) { // 요청 본문의 JSON 데이터를 Todo 객체로 변환
 
         // 경로 변수의 username과 id를 Todo 객체에 일관되게 설정
         todo.setUsername(username);
